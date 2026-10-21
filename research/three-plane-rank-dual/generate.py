@@ -41,6 +41,17 @@ def phi_lp(T):
     return best
 
 
+def mixed_lp(T):
+    """combined functional sum over (Z, X) of w rank(Phi_Z(M)_XX), all 64 zero sets at once"""
+    Zs = [[OFFDIAG[i] for i in range(6) if mask >> i & 1] for mask in range(1 << 6)]
+    pairs = [(z, X) for z in range(64) for X in UNIONS]
+    c = [-2 * pop(X) for _, X in pairs]
+    A = [[phi_bound(S, U, X, Zs[z]) for z, X in pairs] for S, U in KEYS]
+    r = linprog(c, A_ub=A, b_ub=[T[k] for k in KEYS], bounds=[(0, None)] * len(pairs), method="highs")
+    return [[[list(p) for p in Zs[z]], X, str(Q(x).limit_denominator(100))] for (z, X), x in zip(pairs, r.x)
+            if Q(x).limit_denominator(100) > 0]
+
+
 def f2_minimum(T):
     def closure(vec):
         return sum(1 << k for k in range(3) if vec[2 * k] or vec[2 * k + 1])
@@ -82,6 +93,7 @@ def main():
             row["phi_weights"] = [str(x) for x in pw]
             row["phi_value"] = str(sum(2 * pop(X) * pw[i] for i, X in enumerate(UNIONS)))
             if Q(row["phi_value"]) < 12:
+                row["mixed"] = mixed_lp(T)
                 prev = old.get(tt, {}).get("f2_minimum_mass")
                 row["f2_minimum_mass"] = prev if prev is not None else f2_minimum(T)
         out.append(row)

@@ -112,7 +112,7 @@ def main():
     cert = json.loads((Path(__file__).resolve().parent / "CERTIFICATES.json").read_text(encoding="utf-8"))
     rows = {tuple(r["tariffs"]): r for r in cert["classes"]}
     need(set(rows) == set(classes), "one certificate per tariff class")
-    strong = weak = phi_strong = 0
+    strong = weak = phi_strong = mixed_strong = 0
     weak_values = {}
     for tt, triples in classes.items():
         T = dict(zip(KEYS, tt))
@@ -141,6 +141,16 @@ def main():
         need(pvalue == Q(r["phi_value"]), "phi value")
         if pvalue == 12:
             phi_strong += len(triples)
+            continue
+        # mixed certificate: several zero sets at once, sum over (Z, X) of w rank(Phi_Z(M)_XX)
+        mix = [([tuple(z) for z in Zl], X, Q(w)) for Zl, X, w in r["mixed"]]
+        need(all(w > 0 and all(P != Q2 for P, Q2 in Zl) for Zl, X, w in mix), "mixed weights and zero sets")
+        for S, U in KEYS:
+            need(sum(w * phi_bound(S, U, X, Zl) for Zl, X, w in mix) <= T[S, U], "mixed atom inequality")
+        mvalue = sum(2 * pop(X) * w for Zl, X, w in mix)
+        if mvalue == 12:
+            mixed_strong += len(triples)
+            need(r.get("f2_minimum_mass") == 12, "recorded F2 exact minimum agrees")
         else:
             y = [Q(x) for x in r["covering"]]
             need(all(x >= 0 for x in y), "nonnegative covering")
@@ -150,11 +160,12 @@ def main():
             need(r.get("f2_minimum_mass") == 12, "recorded F2 exact minimum is 12")
             weak += len(triples)
             weak_values[str(value)] = weak_values.get(str(value), 0) + len(triples)
-    need(strong == 26977 and phi_strong == 418 and weak == 325, "class split")
+    need(strong == 26977 and phi_strong == 418 and mixed_strong == 325 and weak == 0, "class split")
     print(json.dumps({"status": "PASS_THREE_PLANE_RANK_DUAL", "triples": 27720, "tariff_classes": len(classes),
                       "floor_12_block_rank": strong, "floor_12_zeroed_block": phi_strong,
-                      "floor_12_all_fields_total": strong + phi_strong, "open_below_12_block_rank": weak_values,
-                      "f2_exact_minimum_on_those": 12, "new_kappa_claimed": False}, indent=1))
+                      "floor_12_mixed_zeroed_block": mixed_strong,
+                      "floor_12_all_fields_total": strong + phi_strong + mixed_strong,
+                      "f2_exact_minimum_on_mixed_classes": 12, "new_kappa_claimed": False}, indent=1))
 
 
 if __name__ == "__main__":

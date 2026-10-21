@@ -23,50 +23,45 @@ unions to seven. The coordinate decomposition always costs exactly 12.
 
 The 56 matched planes of the selected archive give 27,720 triples in 486 tariff classes.
 
-**27,395 triples (98.8%) have floor 12, proven over every field.** On these triples three-plane
-mixing cannot lower the COPY mass below separate coordinate messages, whatever the coefficients or
-the number of terms. Two certificate families cover them:
+**All 27,720 triples have three-plane COPY floor 12, proven over every field.** For every triple of
+planes, mixing cannot lower the COPY mass below separate coordinate messages, whatever the coefficients
+or the number of terms. The 12 is sharp, since the coordinate decomposition costs exactly 12. Three
+certificate families cover the triples.
 
-- **26,977 triples: block-rank certificates.** Each has an integer weight vector, for example
-  `w_A = w_AB = w_C = w_BC = 1`, so `L(I) = 2 + 4 + 2 + 4 = 12`.
+- **26,977 triples: block-rank certificates.** These are integer weights `w_X`; for example,
+  `w_A = w_AB = w_C = w_BC = 1` gives `L(I) = 2 + 4 + 2 + 4 = 12`.
 - **418 triples: zeroed-block certificates.**
-  - *Why block-rank fails here.* In these triples, two planes `A` and `B` have binary cross rank
-    0, so a message from `A` to `B` costs **0**. Every block-rank functional counts such free
-    atoms, which caps that family at 8 or 10 or 11.
-  - *The fix.* Let `Φ_Z` zero a set `Z` of off-diagonal plane blocks, here the free ones. Then
-    `rank(Φ_Z(M)_XX)` is still subadditive, since it is the rank of a linear image. Free atoms map
-    to 0, and `Φ_Z(I) = I` because only off-diagonal blocks are zeroed.
-  - *The atom bound.* Restricted to rows and columns `X`, `Φ_Z(u vᵀ)` is a sum over touched row
-    planes of `u_P (Σ_allowed v_Q)ᵀ`. Its rank is therefore at most the number of distinct
-    allowed column sets, or of row sets. This bound is exact combinatorics and holds over every
-    field.
-  - *The certificate.* With it, `Σ_X w_X rank(Φ_Z(M)_XX)` certifies 12. For example,
-    `2·rank(Φ_Z(M))` does so on the value-8 class.
+  - *Why block-rank fails here.* In these triples a cross pair `A, B` has binary rank 0, so a message
+    from `A` to `B` costs **0**. Every block-rank functional counts such free atoms, which caps that
+    family at 8, 10 or 11.
+  - *The fix.* `Φ_Z` zeroes a set `Z` of off-diagonal plane blocks. `rank(Φ_Z(M)_XX)` is still
+    subadditive, because it is the rank of a linear image. Free atoms map to 0, and `Φ_Z(I) = I`.
+  - *The atom bound.* Restricted to `X`, `Φ_Z(u vᵀ)` is a sum over touched row planes of
+    `u_P (Σ_allowed v_Q)ᵀ`. So its rank is at most the number of distinct allowed column (or row)
+    plane sets, a combinatorial bound valid over every field.
+- **325 triples: mixed zeroed-block certificates.**
+  - *Why a single zero set fails here.* These 6 classes have no free atom, but they do have cost-1
+    cross atoms: a binary cross rank of 1. No single `Z` works.
+  - *The fix.* A sum over several zero sets at once does. For the cost-1 pair `A, B`, an example is
 
-**325 triples remain open over ℂ.** These are 6 tariff classes with no free atom. In each class,
-two of the three plane pairs have a joint closure costing only 2, against 4 for an orthogonal
-pair. In three of the classes the full closure also costs 4 instead of 6. Both families stop at 10
-there:
+        L(M) = rank(M) + rank(Φ_{AB,BA}(M)).
 
-- the block-rank value is 10, proven best within that family by an exact dual covering;
-- the zeroed-block search over all 64 choices of `Z` also stops at 10 (generator run, not
-  certified as optimal);
-- an **exact minimum over `F₂`** across all 3,969 binary rank-one atoms (a parity ILP) still gives
-  **12** for every class.
+    A cost-1 atom from `A` to `B` scores `1 + 0`, and `L(I) = 6 + 6 = 12`.
+  - *How it was found.* An LP over all `64 × 7` pairs `(Z, X)` found these certificates.
+  - *Corroboration.* The exact `F₂` minimum, from a parity ILP over all 3,969 binary atoms, is also 12
+    on these classes. A real-coefficient alternating-least-squares search over every multiset of
+    maximal closure patterns of mass at most 11 found nothing either. Its best residual stalls at
+    exactly 1.
 
 ## Not covered
 
-- **The minimum over ℚ or ℂ on the 325 open triples.** Neither certificate family decides it, and
-  the `F₂` search covers binary coefficients only. A cheaper decomposition over ℂ would have to
-  exploit those cheap joint closures. That makes these triples the place to look for a three-plane
-  mixing gain.
 - **Native realization, coverage and hosting.** These are #4365's caveats, unchanged.
 - **Decoders that mix four or more planes.**
 
 ## Evidence and reproduction
 
-`generate.py` uses scipy to write `CERTIFICATES.json`: LP weights, zeroed-block weights, covering
-certificates and the `F₂` ILP minima. `verify.py` uses only the standard library. It recomputes every triple's tariffs
+`generate.py` uses scipy to write `CERTIFICATES.json`: block-rank, zeroed-block and mixed weights,
+and the `F₂` ILP minima. `verify.py` uses only the standard library. It recomputes every triple's tariffs
 from the pinned archive and matching, then checks every certificate exactly. The ILP minima are
 recorded local evidence, not re-solved.
 
@@ -84,13 +79,12 @@ python3.12 -B research/three-plane-rank-dual/generate.py
 
 ## Open next questions
 
-1. **Is the three-plane COPY mass below 12 over ℂ on the 325 open triples?**
-   - *Why it matters:* it would be the first mixing gain under #4365's contract.
-   - *First step:* an exact search over `F₃` and `F₅` atoms in the cheapest open class, or a
-     functional that charges full-closure messages by their rank on the joint label space.
-   - *Blocked by:* nothing.
-2. **Does a triple-local decoder improve the complete budget?** Fifty-six planes do not split
-   into triples, so a mixed pair and triple cover needs its own coverage model.
+1. **Does a genuinely joint decoder over four or more planes stay at `Σ p_i²` under this contract?**
+   - *Why it matters:* pair-local (#4365) and triple-local mixing are now both closed.
+   - *First step:* the same LP over zero sets for plane quadruples. There are 367,290 quadruples, so
+     group them into tariff classes first.
+2. **Does a triple-local decoder improve the complete budget?** No: the COPY mass equals the
+   separate-message mass on every triple. Any gain would need a changed contract.
 
 ## Credit
 

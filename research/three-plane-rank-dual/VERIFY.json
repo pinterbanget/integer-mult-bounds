@@ -15,7 +15,7 @@
         "{package}/verify.py"
       ],
       "timeout_seconds": 600,
-      "checks": "Pinned archive and matching; tariffs of all 27,720 plane triples recomputed; per class: exact atom inequalities of block-rank weights (integer, value 12 on 26,977 triples), zeroed-block functional certificates with combinatorial rank bounds (value 12 on 418 more), exact dual coverings for the 325 open triples, recorded F2 ILP minima equal to 12."
+      "checks": "Pinned archive and matching; tariffs of all 27,720 plane triples recomputed; per class an exact all-field certificate of COPY floor 12: integer block-rank weights (26,977 triples), zeroed-block functional with combinatorial rank bounds (418), mixed zeroed-block sums over several zero sets (325); recorded F2 ILP minima 12 on the mixed classes."
     }
   ]
 }

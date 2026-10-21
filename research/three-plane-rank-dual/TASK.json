@@ -52,14 +52,14 @@
   "budget_minutes": 50,
   "stop_rule": "Stop at block-rank certificates and binary minima; do not search over C or build a decoder.",
   "outcome": "completed",
-  "evidence": "verify.py: 27,395 of 27,720 triples have exact certificates of COPY floor 12 over every field (26,977 block-rank, 418 zeroed-block); 325 triples (6 classes) have block-rank dual 10 with exact coverings, zeroed-block search 10, and F2 exact minimum 12 (HiGHS ILP, recorded).",
+  "evidence": "verify.py: all 27,720 triples have exact certificates of COPY floor 12 over every field: 26,977 block-rank, 418 zeroed-block, 325 mixed zeroed-block (several zero sets at once); F2 exact minimum 12 on the mixed classes (HiGHS ILP, recorded).",
   "author": "Ryanson Jonathan, with Claude Code (Claude Opus 5.5) assistance",
   "ai_assistance": "Substantial Claude Code (Claude Opus 5.5) assistance; no independent human review.",
   "open_questions": [
     {
-      "question": "Is the three-plane COPY mass below 12 over C on the 325 open triples?",
-      "why_it_matters": "It would be the first mixing gain under #4365's contract.",
-      "first_step": "Exact F3/F5 atom search, or a non-block functional that sees free A<->B cancellation.",
+      "question": "Does a joint decoder over four or more planes stay at sum p_i^2?",
+      "why_it_matters": "Pair- and triple-local mixing are now both closed.",
+      "first_step": "The same zero-set LP for plane quadruples, grouped into tariff classes.",
       "blocked_by": "None."
     }
   ]
